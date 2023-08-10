@@ -1,9 +1,16 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
-class BlogPost extends Model {}
+class BlogPost extends Model {
+  static associate(models) {
+    this.hasMany(models.Comment, {
+      foreignKey: 'blogpost_id',
+      onDelete: 'CASCADE',
+    });
+  }
+}
 
-BlogPost. init(
+BlogPost.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -11,20 +18,21 @@ BlogPost. init(
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    post: {
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    author: {
       type: DataTypes.STRING,
       allowNull: false,
     },
   },
   {
     sequelize,
-    timestamps: false,
-    freezeTableName: true,
-    underscored: true,
     modelName: 'blogpost',
   }
 );

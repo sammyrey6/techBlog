@@ -1,32 +1,33 @@
-const router = require('express').Router();
-const { BlogPost } = require('../../models');
+// controllers/blogController.js
+const express = require('express');
+const router = express.Router();
+const BlogPost = require('../../Models/BlogPosts');
 
-router.post('/', async (req, res) => {
+// GET all blog posts
+router.get('/', async (req, res) => {
   try {
-    const blogPostData = await BlogPost.findAll();
-    const blogPosts = blogPostData.map((blogPost) => blogPost.get({ plain: true }));
-
-    //rendering blogPost.handlebars view
-    res.render('blogPost', { blogPosts });
+    const blogPosts = await BlogPost.findAll();
+    res.render('index', { blogPosts });
   } catch (err) {
-    res.status(400).json(err);
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.post('/blogPosts', async (req, res) => {
+
+// GET a single blog post with comments
+router.get('/:id', async (req, res) => {
   try {
-    const blogPostData = await BlogPost.findOne({ where: { id: req.body.blogPost } });
-  
-    if (!blogPostData) {
-      res
-        .status(400)
-        .json({ message: 'No blog post found.' });
-      return;
-    }
-  
+    const blogPost = await BlogPost.findByPk(req.params.id, {
+      include: [{ model: Comment }],
+    });
+
+    res.render('single-blog', { blogPost });
   } catch (err) {
-    res.status(400).json(err);
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 module.exports = router;
